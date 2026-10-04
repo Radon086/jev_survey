@@ -28,16 +28,7 @@ class jevclient(DecisionModel):
 
         state = sample.state
         questions = sample.questions
-        '''
-        for q in questions:
-            print(f'Question ID: {q.id}, Instructions: {q.instruction} , Choices: {q.choices}')
-            element = Choice(instructions=q.instruction, criteria=q.choices)
-            print(f'API element for question ID {q.id}: {element}')
-        '''
-
         api_questions = {q.id: Choice(instructions=q.instruction, criteria=q.choices) for q in questions}
-        #print('API questions:')
-        #print(api_questions)
         result = None
         
         with TypeSafeClient(api_key=self.api_key, model=self.model,) as client:
