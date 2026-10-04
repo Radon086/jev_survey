@@ -84,7 +84,7 @@ class FoxconnDataset:
                 input_questions = []
 
                 sample = json.loads(line)
-                case_id = sample['id']
+                case_id = sample['case_id']
                 label = sample['label']
                 choices = sample['choices']
                 state = sample['state']
@@ -115,7 +115,7 @@ class FoxconnDataset:
                 input_questions = []
 
                 sample = json.loads(line)
-                case_id = sample['id']
+                case_id = sample['case_id']
                 label = sample['label']
                 state = sample['state']
                 question = sample['question']
@@ -143,7 +143,7 @@ class FoxconnDataset:
                 input_questions = []
 
                 sample = json.loads(line)
-                case_id = sample['id']
+                case_id = sample['case_id']
                 label = sample['label']
                 state = sample['state']
                 question = sample['question']

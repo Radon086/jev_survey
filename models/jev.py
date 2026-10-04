@@ -1,4 +1,4 @@
-from decision_model import DecisionModel
+from .decision_model import DecisionModel
 from typesafe_sdk import Choice, Noul, Score, TypeSafeClient
 '''
 @dataclass
@@ -26,38 +26,47 @@ class jevclient(DecisionModel):
     def choice(self, sample):
         super().choice(sample)
 
-        state = sample['state']
-        questions = sample['questions']
-        api_questions = {q.id: Choice(instruction=q.instruction, criteria=q.choices) for q in questions}
+        state = sample.state
+        questions = sample.questions
+        '''
+        for q in questions:
+            print(f'Question ID: {q.id}, Instructions: {q.instruction} , Choices: {q.choices}')
+            element = Choice(instructions=q.instruction, criteria=q.choices)
+            print(f'API element for question ID {q.id}: {element}')
+        '''
 
+        api_questions = {q.id: Choice(instructions=q.instruction, criteria=q.choices) for q in questions}
+        #print('API questions:')
+        #print(api_questions)
         result = None
+        
         with TypeSafeClient(api_key=self.api_key, model=self.model,) as client:
             result = client.system_one(
                 state=state,
                 questions=api_questions,
             )
+        
         return result
 
     def noul(self, sample):
         super().noul(sample)
-        state = sample['state']
-        questions = sample['questions']
+        state = sample.state
+        questions = sample.questions
 
         result = None
         with TypeSafeClient(api_key=self.api_key, model=self.model,) as client:
             result = client.system_one(
                 state=state,
-                questions={q.id: Noul(instruction=q.instruction) for q in questions},
+                questions={q.id: Noul(instructions=q.instruction) for q in questions},
             )
-
         return result
     
     def score(self, sample):
         super().score(sample)
 
-        input_state = sample['state']
-        questions = sample['questions']
-        api_questions = {q.id: Score(instruction=q.instruction, criteria=q.rubric) for q in questions}  
+        input_state = sample.state
+        questions = sample.questions
+        api_questions = {q.id: Score(instructions=q.instruction, criteria=q.rubric) for q in questions}  
 
         result = None
         with TypeSafeClient(api_key=self.api_key, model=self.model,) as client:
