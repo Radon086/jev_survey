@@ -20,6 +20,16 @@ Furthermore, the answer should only be one of the available choices. Do not prov
 Answer:
 """)
 
+noul_prompt_sp = Template("""
+The current state is: $state
+The question is: $question
+The available choices are: True, False
+The answer should be provided based on the current state, available choices, and the question.
+Furthermore, the answer should only be one of the available choices and a short explanation should be provided. Do not provide any additional information.
+
+Answer:
+""")
+
 score_prompt = Template("""
 The current state is: $state
 The question is: $question

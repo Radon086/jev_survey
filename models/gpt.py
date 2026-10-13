@@ -6,7 +6,7 @@ from typesafe_sdk import Choice, Noul, Score, TypeSafeClient
 import json
 import requests
 import os
-from .prompt import choice_prompt, noul_prompt, score_prompt
+from .prompt import choice_prompt, noul_prompt, noul_prompt_sp, score_prompt
 
 class GPTClient(DecisionModel):
     def __init__(self, endpoint, api_key, deployment_name):
@@ -107,7 +107,46 @@ class GPTClient(DecisionModel):
             latency[q.id] = response_latency["service_ttlt_ms"]
 
         return {'model': self.deployment_name, "answers": answers, "usage": usage, "latency": latency}, responses
+    
+    def noul_sp(self,sample):
+        super().noul(sample)
+        state = sample.state
+        questions = sample.questions
 
+        responses = []
+        answers = {}
+        usage = {}
+        latency = {}
+
+        for q in questions:
+            instruction = q.instruction
+            prompt = noul_prompt_sp.substitute(state=state, question=instruction)
+            messages = [{"role": "system", "content": self.role}]
+            messages.append({"role": "user", "content": prompt})
+            # print(prompt)
+            payload = {
+                "messages": messages,
+            }
+            response = requests.post(self.url, headers=self.headers, json=payload)
+            if response.status_code == 200:
+                msg = response.json()['choices'][0]['message']['content']
+            else:
+                msg = f"Error {response.status_code}: {response.text}"
+
+            answers[q.id] = msg
+            responses.append(response.json())
+            response_usage = response.json().get("usage", {})
+            response_latency = response_usage.get("latency_checkpoint", None) 
+            usage[q.id] = {
+                "prompt_tokens": response_usage["prompt_tokens"],
+                "completion_tokens": response_usage["completion_tokens"],
+                "reasoning_tokens": response_usage["completion_tokens_details"]["reasoning_tokens"],
+                "total_tokens": response_usage["total_tokens"],
+            }
+            latency[q.id] = response_latency["service_ttlt_ms"]
+
+        return {'model': self.deployment_name, "answers": answers, "usage": usage, "latency": latency}, responses
+    
     def score(self,sample):
         super().score(sample)
         state = sample.state
